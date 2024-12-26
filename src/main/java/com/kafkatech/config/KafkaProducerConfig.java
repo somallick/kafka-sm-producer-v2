@@ -38,7 +38,7 @@ public class KafkaProducerConfig {
     }
 
     /*
-     * Configuration For text message producer publish
+     * Configuration For json message producer publish
      */
     @Bean
     public Map<String, Object> jsonProducerConfig() {
