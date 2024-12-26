@@ -2,8 +2,7 @@ package com.kafkatech.controller;
 
 import com.kafkatech.dto.CustomerDTO;
 import com.kafkatech.service.KafkaJsonMessagePublisher;
-import com.kafkatech.service.KafkaMessagePublisher;
-import com.kafkatech.service.KafkaMessagePublisher2;
+import com.kafkatech.service.KafkaTextMessagePublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,31 +11,27 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/producer-app")
+@RequestMapping("/publish")
 public class KafkaEventController {
 
     private static final Logger log = LoggerFactory.getLogger(KafkaEventController.class);
     @Autowired
-    private KafkaMessagePublisher kafkaMessagePublisher;
-    @Autowired
-    private KafkaMessagePublisher2 kafkaMessagePublisher2;
+    private KafkaTextMessagePublisher kafkaTextMessagePublisher;
     @Autowired
     private KafkaJsonMessagePublisher kafkaJsonMessagePublisher;
 
-    @PostMapping("/text/publish/{id}")
-    public ResponseEntity<?> publishMessage(@RequestBody String message, @PathVariable String id) {
+    @PostMapping("/text")
+    public ResponseEntity<?> publishMessage(@RequestBody String message) {
         try {
-            if(Integer.parseInt(id.trim())==1)
-                kafkaMessagePublisher.sendMessageToTopic(message);
-            else
-                kafkaMessagePublisher2.sendMessageProcessWithCallbacks(message);
-            return ResponseEntity.ok("message published successfully ..");
+            kafkaTextMessagePublisher.sendTextMessageToTopic(message);
+            return ResponseEntity.ok("Text message published successfully ..");
         } catch (Exception ex) {
+            log.error("Error occurred while publishing text message - {}", ex.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
-    @PostMapping("/json/publish")
+    @PostMapping("/json")
     public ResponseEntity<?> publishJsonMessage(@RequestBody CustomerDTO customerDTO) {
         try{
             kafkaJsonMessagePublisher.sendJsonMessageToTopic(customerDTO);
